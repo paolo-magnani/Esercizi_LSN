@@ -1,0 +1,18 @@
+1
+2.0
+50
+1.0
+0.02
+0
+50
+10000
+
+
+  ReadInput >> restart;
+  ReadInput >> temp;
+  ReadInput >> nspin;
+  ReadInput >> J;
+  ReadInput >> h;
+  ReadInput >> metropolis=1/gibbs=0;
+  ReadInput >> nblk;
+  ReadInput >> nstep;

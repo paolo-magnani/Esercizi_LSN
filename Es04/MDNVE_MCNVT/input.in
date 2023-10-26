@@ -1,0 +1,26 @@
+0
+1
+0.8
+108
+1.1
+2.2
+0.0005
+100
+1000
+
+  ReadInput >> iNVET; 0=MD(NVE) 1=MC(NVT)
+  ReadInput >> restart; 0=equilibration, 1=simulation
+  ReadInput >> temp;
+  ReadInput >> npart;
+  ReadInput >> rho;
+  ReadInput >> rcut;
+  ReadInput >> delta;
+  ReadInput >> nblk;
+  ReadInput >> nstep;
+  
+  temp_input solid: 1.54 (10000 steps) (MD code)
+  temp_input liquid: 1.98 (100000 steps) (MD code)
+  temp_input gas: 0.96 (100000 steps) (MD code)
+  
+  
+  
