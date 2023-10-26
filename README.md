@@ -1,2 +1,4 @@
 # Esercizi_LSN
-Esercizi del Laboratorio di Simulazione Numeric
+Esercizi del Laboratorio di Simulazione Numerica
+
+
