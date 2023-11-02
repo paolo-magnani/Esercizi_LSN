@@ -6,6 +6,10 @@ bool comp(vector<double> pippo, vector<double> pluto){
 			else return false;
 }
 
+struct city_in_square{ //posizione per ogni città
+	vector<double> x;
+	vector<double> y;
+};
 
 class Pop_circle {
 	
@@ -132,7 +136,7 @@ class Pop_circle {
 
 		void setL1(){ //setto la distanza del tragitto per ciascun cromosoma (se non è stata già settata)
             for(unsigned int i=0; i<genome.size(); i++){
-				if(genome[i].size()!=city.size()) genome[i].push_back(eval1(genome[i]));
+				if(genome[i].size()!=city.size()+1) genome[i].push_back(eval1(genome[i]));
 			}
 		}
 		
@@ -309,7 +313,7 @@ class Pop_square {
 	private:
 	
 		vector<vector<double>> genome; //il genoma è un vettore di cromosomi (ognuno contenente una sequenza di città)
-		vector<double> city; // sequenza contenente tutte le distanze delle città dalla prima
+		city_in_square city; // sequenza contenente tutte le distanze delle città dalla prima
 		vector<double> best, best_mean, best_chromo;
 		unsigned int generations; //numero di generazioni
 		double p_cross=0.5; // probabilità di crossing
@@ -328,13 +332,15 @@ class Pop_square {
 			iniz(rand);
 				
 			vector<double> chromo(n_genes);
-			city.push_back(0.); //fisso la prima città
+			city.x.push_back(0.);
+			city.y.push_back(0.); //fisso le coordinate della prima città
 			for(unsigned int i=0; i<n_genes; i++){
 				chromo[i]=i;
-				if(i!=0) city.push_back(rand.Rannyu(0.,2*M_PI)); //genero le altre città
+				if(i!=0){
+					city.x.push_back(rand.Rannyu(0.,1.));
+					city.y.push_back(rand.Rannyu(0.,1.)); //genero le altre città
+				}
 			}
-			
-			sort(city.begin(),city.end()); //per fare i test, la sequenza corretta più breve tra le città è 1-2-3-4-5-6 ...
 			
 			for(unsigned int i=0; i<n_chr; i++){	//preparo i cromosomi con sequenze casuali, aggiungo la misura e check per vedere se sono giusti
 				random_shuffle(chromo.begin()+1, chromo.end());
@@ -367,7 +373,7 @@ class Pop_square {
         bool check(const vector<double>& chr){ //sommati tutti insieme, i valori nei cromosomi (dotati di misura) devono dare N*(N-1)/2 
 			double sum = 0;
 			for(unsigned int i=0; i<chr.size()-1; i++) sum += chr[i];
-			double realvalue = (city.size()-1)*city.size()/2;
+			double realvalue = (city.x.size()-1)*city.x.size()/2;
 			if(realvalue!=sum){ 
 				cerr << endl << "WARNING: chromosome is not correct" << endl;
 				for(unsigned int i=0;  i<chr.size(); i++) cout << chr[i] << " ";
@@ -377,7 +383,7 @@ class Pop_square {
 			else return false;
 		}
 		
-		double eval1(const vector<double>& chromo){ //valuto la distanza per per un vettore di città posizionate su un cerchio
+		double eval1(const vector<double>& chromo){ //valuto la distanza per per un vettore di città posizionate in quadrato
 			double L=0., Lx=0., Ly=0.;
 			unsigned int index1;
 			unsigned int index2;
@@ -385,8 +391,8 @@ class Pop_square {
 			for(unsigned int i=0; i<(chromo.size()-2); i++){
 				index1 = chromo[i];
 				index2 = chromo[i+1];
-				Lx = cos(city[index1])-cos(city[index2]);
-				Ly = sin(city[index1])-sin(city[index2]);
+				Lx = city.x[index1]-city.x[index2];
+				Ly = city.y[index1]-city.y[index2];
 				L += sqrt((Lx*Lx)+(Ly*Ly));
 			}
 			unsigned int appo = chromo.size()-1;
@@ -395,8 +401,8 @@ class Pop_square {
 			//if(city[index2]>M_PI) L += fabs(2*M_PI-city[index2]);
 			//else L += fabs(city[index2]);
 			
-			Lx=cos(city[0])-cos(city[index2]);
-			Ly=sin(city[0])-sin(city[index2]);
+			Lx=city.x[0]-city.x[index2];
+			Ly=city.y[0]-city.y[index2];
 			L += sqrt((Lx*Lx)+(Ly*Ly));
 			
 			return L;
@@ -410,8 +416,8 @@ class Pop_square {
 			for(unsigned int i=0; i<(chromo.size()-3); i++){
 				index1 = chromo[i];
 				index2 = chromo[i+1];
-				Lx = cos(city[index1])-cos(city[index2]);
-				Ly = sin(city[index1])-sin(city[index2]);
+				Lx = city.x[index1]-city.x[index2];
+				Ly = city.y[index1]-city.y[index2];
 				L += sqrt((Lx*Lx)+(Ly*Ly));
 			}
 			unsigned int appo = chromo.size()-2;
@@ -420,8 +426,8 @@ class Pop_square {
 			//if(city[index2]>M_PI) L += fabs(2*M_PI-city[index2]);
 			//else L += fabs(city[index2]);
 			
-			Lx=cos(city[0])-cos(city[index2]);
-			Ly=sin(city[0])-sin(city[index2]);
+			Lx=city.x[0]-city.x[index2];
+			Ly=city.y[0]-city.y[index2];
 			L += sqrt((Lx*Lx)+(Ly*Ly));
 			
 			return L;            
@@ -429,7 +435,7 @@ class Pop_square {
 
 		void setL1(){ //setto la distanza del tragitto per ciascun cromosoma (se non è stata già settata)
             for(unsigned int i=0; i<genome.size(); i++){
-				if(genome[i].size()!=city.size()) genome[i].push_back(eval1(genome[i]));
+				if(genome[i].size()!=city.x.size()+1) genome[i].push_back(eval1(genome[i]));
 			}
 		}
 		
@@ -444,7 +450,7 @@ class Pop_square {
 		}
 
         void print_city(){ //stampo il vettore di città
-			for(unsigned int i=0; i<city.size(); i++) cout << i << " :  " << city[i] << endl;
+			for(unsigned int i=0; i<city.x.size(); i++) cout << i << " :  " << city.x[i] << " , " << city.x[i] << endl;
 		}
         
         void evolveL1(unsigned int n_rep){ //evolvo la popolazione e registro i migliori
@@ -591,8 +597,8 @@ class Pop_square {
 
 			for(unsigned int i = 0; i < generations; i++) outbest << i+1 << "," << best[i] << "," << best_mean[i] << endl;
 			for(unsigned int i = 0; i < best_chromo.size()-1; i++){
-				double x = cos(city[best_chromo[i]]);
-				double y = sin(city[best_chromo[i]]);
+				double x = city.x[best_chromo[i]];
+				double y = city.y[best_chromo[i]];
 				outbest_chromo << i << "," << x << "," << y << endl;
 			}
 			outbest.close();
