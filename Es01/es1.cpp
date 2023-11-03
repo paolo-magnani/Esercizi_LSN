@@ -12,7 +12,7 @@ int main(){
 	
 	const unsigned int L=M/N;
 	Random rand; 
-	iniz(rand); 																									// inizializzo il generatore di numeri casuali
+	iniz(rand); // inizializzo il generatore di numeri casuali
 	
 	vector<double> r(M), x(N);
 	
@@ -20,52 +20,45 @@ int main(){
 	for(unsigned int i=0; i<N; i++) x[i]=i*L;
 	
 	//punto 1.1
-	ofstream out;
-	out.open("1011.dat");
+	cout << " Risolvo il punto 1.1... " << endl;
 	
 	vector<double> su1_prog(N,0), er1_prog(N,0); // uso un costruttore della classe vector in modo da creare un vettore di zeri
 	
 	mediablocchi(M, N, r, su1_prog, er1_prog); // uso la funzione contenuta nella libreria
-	
-	for(unsigned int i=0; i<N; i++) out << x[i] << "," << (su1_prog[i]-0.5) << "," << er1_prog[i] << endl; //stampo su file con ',' come separatore
-	
-	out.close();
+
+	stampamedia("1011.dat", M, su1_prog, er1_prog);
 	
 	
 	//punto 1.2
 	//analogo del punto 1
-	ofstream out2;
-	out2.open("1012.dat");
-	
+	cout << " Risolvo il punto 1.2... " << endl;
+
 	vector<double> su2_prog(N,0), er2_prog(N,0);
 	
 	for(unsigned int i=0; i<M; i++) r[i]= pow(r[i]-0.5, 2.);
 	
 	mediablocchi(M, N, r, su2_prog, er2_prog);
 			
-	for(unsigned int i=0; i<N; i++)	out2 << x[i] << "," << (su2_prog[i]-(1./12.)) << "," << er2_prog[i] << endl; 
-	
-	out2.close();
-	
+	stampamedia("1012.dat", M, su2_prog, er2_prog);
 	
 	//punto 1.3
-	ofstream out3;
-	out3.open("1013.dat");
-	iniz(rand);																										//riinizializzo il generatore random
+	ofstream out;
+	out.open("1013.dat");
+	iniz(rand);	//riinizializzo il generatore random
 	
-	vector<double> chisq(Mchi,0); 																			//vettore di risultati del chi quadro inizializzato a 0
+	vector<double> chisq(Mchi,0); //vettore di risultati del chi quadro inizializzato a 0
 	
-	double ampl = 1./double(Mchi); 																			// definisco l'ampiezza di ogni bin
-	double low = 0.; 																								// definisco il valore minimo dell'intervallo
+	double ampl = 1./double(Mchi); // definisco l'ampiezza di ogni bin
+	double low = 0.;  // definisco il valore minimo dell'intervallo
 	
 	
-	for(unsigned int i=0; i<Mchi; i++){ 																	// ripeto il processo Mchi volte
+	for(unsigned int i=0; i<Mchi; i++){ // ripeto il processo Mchi volte
 		
 		vector<double> ran(nchi);
-		generate(ran.begin(),ran.end(),[&](){ return rand.Rannyu();}); 							// riempio il vettore di numeri casuali estratti tra [0,1]
-		vector<int> n(Mchi,0); 																					// creo il vettore che conta le occorrenze in ogni bin
+		generate(ran.begin(),ran.end(),[&](){ return rand.Rannyu();}); 	// riempio il vettore di numeri casuali estratti tra [0,1)
+		vector<int> n(Mchi,0); 	// creo il vettore che conta le occorrenze in ogni bin
 		
-		for(unsigned int j=0; j<nchi; j++){ 																// algoritmo che cicla su tutti i numeri generati per incasellarli nel bin corrispondente
+		for(unsigned int j=0; j<nchi; j++){  // algoritmo di ricerca binaria che cicla su tutti i numeri generati per incasellarli nel bin corrispondente
 			
 			unsigned int n_min = 0; 
 			unsigned int n_max = Mchi - 1;
@@ -90,10 +83,10 @@ int main(){
 			chisq[i] += pow(double(n[j])-double(nchi/Mchi), 2.); // calcolo il chi quadro
 		} 
 		chisq[i] /= double(nchi/Mchi);
-		out3 << chisq[i] << endl; // stampo su file
+		out << chisq[i] << endl; // stampo su file
 	}
 	
-	out3.close();
+	out.close();
 	
 	
 	

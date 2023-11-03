@@ -44,35 +44,6 @@ void iniz(Random &rnd){
    
 }
 
-/*void mediablocchi( const unsigned int M, const unsigned int N, const vector<double>& r, vector<double>& sum_prog, vector<double>& err_prog){
-
-	vector<double> ave(N,0), av2(N,0), su2_prog(N,0);
-	
-	const unsigned int L=M/N;
-	for(unsigned int i=0; i<N; i++){
-		double sum = 0;
-		
-	for(unsigned int j=0; j<L; j++){
-			double k=j+(i*L);
-			sum += r[k];
-			}
-			
-		ave[i] = sum/double(L);
-		av2[i] = pow(ave[i], 2.);
-	}
-			
-	for(unsigned int i=0; i<N; i++){
-		for(unsigned int j=0; j<i+1; j++){
-				sum_prog[i] += ave[j];
-				su2_prog[i] += av2[j];
-		}
-		sum_prog[i] /= double(i+1.);
-		su2_prog[i] /= double(i+1.);
-		err_prog[i] = error(sum_prog, su2_prog, i);
-	}
-
-}*/ 
-
 void mediablocchi( const unsigned int M, const unsigned int N, const vector<double>& r, vector<double>& sum_prog, vector<double>& err_prog){
 
 	vector<double> su2_prog(N,0);
@@ -98,3 +69,14 @@ void mediablocchi( const unsigned int M, const unsigned int N, const vector<doub
 			
 
 } 
+
+void stampamedia(string filename, int N_data, vector<double> media, vector<double> err){
+
+	ofstream out;
+	out.open(filename);
+
+	int L = N_data/media.size();
+	for(unsigned int i=0; i<media.size(); i++) out << (i+1)*L << "," << media[i] << "," << err[i] << endl; 
+
+	out.close();
+}
