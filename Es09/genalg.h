@@ -318,6 +318,7 @@ class Pop_square {
 		unsigned int generations; //numero di generazioni
 		double p_cross=0.5; // probabilità di crossing
 		double p_mut=0.2; // probabilità di mutazione
+		double p_mut2=0.3; //probabilità di mutazione di scambio
 		Random rand;
 		bool dist;
 		
@@ -479,7 +480,7 @@ class Pop_square {
 			
 			int chr = selection();
 			
-			if(rand.Rannyu()<p_mut){//scambio due città 
+			if(rand.Rannyu()<p_mut2){//scambio due città 
 				
                 int idx, idx2;
 				idx = rand.Rannyu(1., genome[chr].size()-1);
