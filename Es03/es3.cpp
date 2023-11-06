@@ -36,8 +36,10 @@ int main(){
 	vector<double> call2(N,0), err_call2(N,0);
 	vector<double> put2(N,0), err_put2(N,0);
 	
-	//stima diretta 
+	cout << " Calcolo la stima diretta e discretizzata adi put e call..." << endl;
 	for(unsigned int i=0; i<M; i++){
+
+		//stima diretta 
 		P[i]=0;
 		C[i] = exp(-r*T)*(S_0*exp((r-(0.5*pow(sigma,2)))*T+(sigma*rand.Gauss(0, sqrt(T))))-K);
 			
@@ -45,11 +47,9 @@ int main(){
 		
 			P[i]=-C[i];
 			C[i]=0;
-		}	
-	}
-		
-	//stima discretizzata
-	for(unsigned int i=0; i<M; i++){
+		}
+
+		//stima discretizzata
 		double S = S_0;
 		P2[i]=0;
 		for(unsigned int j=1; j<=nintervals; j++) S = S*exp((r-(0.5*pow(sigma,2)))*t+(sigma*rand.Gauss(0,1)*sqrt(t)));
@@ -59,9 +59,9 @@ int main(){
 			P2[i]=-C2[i];
 			C2[i]=0;
 		}	
-		
+
 	}
-	
+		
 	mediablocchi(M, N, C, call, err_call);
 	mediablocchi(M, N, P, put, err_put);
 	mediablocchi(M, N, C2, call2, err_call2);
@@ -74,7 +74,6 @@ int main(){
 		outC2 << (i+1)*L << "," << call2[i] << "," << err_call2[i] << endl; 
 		outP2 << (i+1)*L << "," << put2[i] << "," << err_put2[i] << endl;
 	}
-	
 	
 	outP.close();
 	outC.close();

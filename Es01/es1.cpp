@@ -48,35 +48,14 @@ int main(){
 	
 	vector<double> chisq(Mchi,0); //vettore di risultati del chi quadro inizializzato a 0
 	
-	double ampl = 1./double(Mchi); // definisco l'ampiezza di ogni bin
-	double low = 0.;  // definisco il valore minimo dell'intervallo
-	
+	double low = 0., high=1.;  // definisco il valore minimo e massimo dell'intervallo
 	
 	for(unsigned int i=0; i<Mchi; i++){ // ripeto il processo Mchi volte
 		
 		vector<double> ran(nchi);
 		generate(ran.begin(),ran.end(),[&](){ return rand.Rannyu();}); 	// riempio il vettore di numeri casuali estratti tra [0,1)
-		vector<int> n(Mchi,0); 	// creo il vettore che conta le occorrenze in ogni bin
 		
-		for(unsigned int j=0; j<nchi; j++){  // algoritmo di ricerca binaria che cicla su tutti i numeri generati per incasellarli nel bin corrispondente
-			
-			unsigned int n_min = 0; 
-			unsigned int n_max = Mchi - 1;
-		
-			while(n_min<=n_max){
-				
-				unsigned int medio = (n_min + n_max)/2;
-				double bin_min = double(low) + double(medio)*ampl;
-				double bin_max = double(low) + double(medio+1)*ampl;
-				
-				if(ran[j]>=bin_min and ran[j]<bin_max){
-					n[medio]++;
-					break;
-				}
-				else if(ran[j]<bin_min) n_max = medio-1;
-				else n_min = medio+1;
-				}
-		}
+		vector<unsigned int> n = binsearch(ran, low, high, Mchi); // algoritmo di ricerca binaria che cicla su tutti i numeri generati per incasellarli nel bin corrispondente
 		
 		for(unsigned int j=0; j<Mchi; j++){
 		
@@ -91,7 +70,7 @@ int main(){
 	
 	
 	//punto 2: test teorema limite centrale
-	
+	cout << " Risolvo il punto 2..." << endl;
 	ofstream outUni;
 	ofstream outExp;
 	ofstream outLor;
@@ -134,10 +113,8 @@ int main(){
 	
 	
 	//punto 3: ago di Buffon
-
-	iniz(rand);
-	ofstream out4;
-	out4.open("Buffon.dat");
+	cout << " Risolvo il punto 3... " << endl;
+	iniz(rand); //riinizializzo il generatore di numeri random 
 		
 	const double d = 1.;
 	const double lenght = 0.4;
@@ -175,14 +152,10 @@ int main(){
 		
 		Nhit=0;
 	}
+
+	stampamedia("Buffon.dat", M, su3, er3);
 	
-	//mediablocchi(M, N, stima, su3, er3);
-	
-	for(unsigned int i=0; i<N; i++) out4 << i+1 << "," << su3[i] << "," << er3[i] << endl;
-	
-	out4.close();
-	
-	cout << endl << "Completo." << endl;
+	cout << " Completo." << endl;
 	 
 	 
 	
