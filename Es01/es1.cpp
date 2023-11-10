@@ -1,9 +1,9 @@
-#include "../libremia.h" //le funzioni o classi utilizzate in più di una esercitazione sono state inserite in una cartella superiore
-#define M 1000000 // definisco il numero di lanci che intendo fare
-#define N 100 // definisco il numero di step
+#include "../libremia.h" //le funzioni o classi utilizzate in più di una esercitazione sono state inserite in una libreria
+#define M 1000000 // numero di lanci che intendo fare
+#define N 100 // numero di step
 #define nchi 10000
 #define Mchi 100
-#define lambda 1 //valori da inserire per le ditribuzioni esponenziali e lorentziane
+#define lambda 1 //valori da inserire per le distribuzioni esponenziali e lorentziane
 #define mu 0
 #define gamma 1
 
@@ -16,17 +16,17 @@ int main(){
 	
 	vector<double> r(M), x(N);
 	
-	generate(r.begin(),r.end(),[&](){ return rand.Rannyu();}); // uso una lambda function per riempire il vettore 'r' di numeri generati randomicamente
+	generate(r.begin(),r.end(),[&](){ return rand.Rannyu();}); // riempio il vettore 'r' di numeri random
 	for(unsigned int i=0; i<N; i++) x[i]=i*L;
 	
 	//punto 1.1
 	cout << " Risolvo il punto 1.1... " << endl;
 	
-	vector<double> su1_prog(N,0), er1_prog(N,0); // uso un costruttore della classe vector in modo da creare un vettore di zeri
+	vector<double> su1_prog(N,0), er1_prog(N,0); // inizializzo i vector a 0
 	
-	mediablocchi(M, N, r, su1_prog, er1_prog); // uso la funzione contenuta nella libreria
+	mediablocchi(M, N, r, su1_prog, er1_prog); // calcolo la media a blocchi
 
-	stampamedia("1011.dat", M, su1_prog, er1_prog);
+	stampamedia("risultati/1011.dat", M, su1_prog, er1_prog);
 	
 	
 	//punto 1.2
@@ -39,14 +39,14 @@ int main(){
 	
 	mediablocchi(M, N, r, su2_prog, er2_prog);
 			
-	stampamedia("1012.dat", M, su2_prog, er2_prog);
+	stampamedia("risultati/1012.dat", M, su2_prog, er2_prog);
 	
 	//punto 1.3
 	ofstream out;
-	out.open("1013.dat");
+	out.open("risultati/1013.dat");
 	iniz(rand);	//riinizializzo il generatore random
 	
-	vector<double> chisq(Mchi,0); //vettore di risultati del chi quadro inizializzato a 0
+	vector<double> chisq(Mchi,0); //vettore di risultati del chi quadro
 	
 	double low = 0., high=1.;  // definisco il valore minimo e massimo dell'intervallo
 	
@@ -74,27 +74,27 @@ int main(){
 	ofstream outUni;
 	ofstream outExp;
 	ofstream outLor;
-	outUni.open("Uni.dat");
-	outExp.open("Exp.dat");
-	outLor.open("Lor.dat");
+	outUni.open("risultati/Uni.dat");
+	outExp.open("risultati/Exp.dat");
+	outLor.open("risultati/Lor.dat");
 	iniz(rand); 
 	vector<double> uni(nchi,0), exp(nchi,0), lor(nchi,0);
-	vector<double> rep = {1, 2, 10, 100};
+	vector<double> rep = {1, 2, 10, 100}; // ripetizioni per il test del teorema del limite centrale
 	
-	for(unsigned int i=0; i<10000; i++){
+	for(unsigned int i=0; i<nchi; i++){ // riempio i vettori di 'nchi' occorrenze della media 
 	
 		int conta = 0;
 		
 		for(unsigned int j=0; j<4; j++){
 		
-			while(conta < rep[j]){
+			while(conta < rep[j]){ // sommo numeri estratti secondo le distribuzioni
 				uni[i] += rand.Rannyu();
 				exp[i] += rand.Exp(lambda);
 				lor[i] += rand.Lorentz(mu, gamma);
 				conta ++;
 			}
 			
-			outUni << uni[i]/rep[j] << "," ;
+			outUni << uni[i]/rep[j] << "," ; // calcolo la media
 			outExp << exp[i]/rep[j] << "," ;
 			outLor << lor[i]/rep[j] << "," ;
 		
@@ -116,9 +116,9 @@ int main(){
 	cout << " Risolvo il punto 3... " << endl;
 	iniz(rand); //riinizializzo il generatore di numeri random 
 		
-	const double d = 1.;
-	const double lenght = 0.4;
-	unsigned int Nhit = 0;
+	const double d = 1.; // dimensione del box
+	const double lenght = 0.4; // lunghezza dell'ago di Buffon
+	unsigned int Nhit = 0; // numero di intersezioni tra l'ago e i confini del box
 	
 	vector<double> su3(N,0), su3sq(N,0), er3(N,0);
 	double sum = 0, sumsq=0;
@@ -126,23 +126,24 @@ int main(){
 	
 	for(unsigned int i=0; i<N; i++){
 	
-		for(unsigned int j=0; j<L; j++){				// L è la dimensione di ogni blocco 
+		for(unsigned int j=0; j<L; j++){ 
 		
-			double x0 = rand.Rannyu(0.,d);
-			double x1 = rand.Rannyu(-1.,1.);
+			double x0 = rand.Rannyu(0.,d); // l'ago cade generica posizione x
+
+			double x1 = rand.Rannyu(-1.,1.); // uso metodo Accept-Reject per campionare l'angolo
 			double y1 = rand.Rannyu(-1.,1.);
 			
-			while(sqrt(pow(x1,2.)+pow(y1,2.))>1.){
+			while(sqrt(pow(x1,2.)+pow(y1,2.))>1.){ // prendo punti all'interno di un cerchio unitario
 				x1 = rand.Rannyu(-1.,1.);
 				y1 = rand.Rannyu(-1.,1.);	
 			}
 			
 			double sin = x1/sqrt(pow(x1,2.)+pow(y1,2.));
 			
-			if(x0+(sin*lenght)<0 or x0+(sin*lenght)>d) Nhit++;	
+			if(x0+(sin*lenght)<0 or x0+(sin*lenght)>d) Nhit++; // se l'ago interseca i confini del box, aumenta 'Nhit'
 		}
 		
-		sum += (2.*lenght*L)/(Nhit*d);
+		sum += (2.*lenght*L)/(Nhit*d); // stima di Buffon
 		su3[i] = sum/(i+1.);
 		
 		sumsq += pow((2.*lenght*L)/(Nhit*d),2.);
@@ -153,7 +154,7 @@ int main(){
 		Nhit=0;
 	}
 
-	stampamedia("Buffon.dat", M, su3, er3);
+	stampamedia("risultati/Buffon.dat", M, su3, er3);
 	
 	cout << " Completo." << endl;
 	 

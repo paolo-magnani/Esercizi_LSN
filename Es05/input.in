@@ -1,11 +1,16 @@
 0
 0
 1.2
-psi100_mean.dat
-psi100_data.dat
+-30 30 30
+risultati/psiout100_mean.dat
+risultati/psiout100_data.dat
+
+
+ Usage:
 
  Input >> 0/1 >> Uniform/Gauss 
  Input >> 0/1 >> psi100/psi210
  Input >> 1.2/3.0/0.75/1.9 >> step_psi100/step_psi210/step_psi100Gauss/step_psi210Gauss
+ Input >> x y z (of the starting point)
  Input >> psi100_mean.dat/psi210_mean.dat/psi100_meanGauss.dat/psi210_meanGauss.dat
  Input >> psi100_data.dat/psi210_data.dat/psi100_dataGauss.dat/psi210_dataGauss.dat
