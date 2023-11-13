@@ -34,7 +34,7 @@ int main()
         nconf += 1;
       }
     }
-    Averages(iblk);   //Print results for current block
+    Averages(iblk);  //Print results for current block
   }
   ConfFinal(); //Write final configuration
 
@@ -66,7 +66,7 @@ void Input(void)
   ReadInput >> iNVET;
   ReadInput >> restart;
 
-  if(restart) Seed.open("seed.out");
+  if(restart) Seed.open("seed.out"); // the restart option between equilibration and simulation
   else Seed.open("seed.in");
   Seed >> seed[0] >> seed[1] >> seed[2] >> seed[3];
   rnd.SetRandom(seed,p1,p2);
@@ -115,7 +115,9 @@ void Input(void)
   {
     ReadConf.open("config.out");
     ReadVelocity.open("velocity.out");
+    cout << "Retrieving velocities from equilibration " << endl;
     for (int i=0; i<npart; ++i) ReadVelocity >> vx[i] >> vy[i] >> vz[i];
+    ReadVelocity.close();
   }
   else 
   {
@@ -449,7 +451,7 @@ void Averages(int iblk) //Print results for current block
     
     
     //if(restart==0 and iblk==nblk) cout << endl << "The system has reached the temperature of " << glob_av[it]/(double)iblk << " a. u. " << endl;
-    cout << endl << "The system has the temperature of " << glob_av[it]/(double)iblk << " a.u. " << endl; //check
+    cout << endl << "The system has reached the temperature of " << glob_av[it]/(double)iblk << " a.u. " << endl; //check
 }
 
 

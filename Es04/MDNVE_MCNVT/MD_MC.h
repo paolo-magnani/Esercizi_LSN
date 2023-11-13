@@ -45,9 +45,6 @@ double delta;
 //pigreco
 const double pi=3.1415927;
 
-//equilibrazione
-bool equilibrazione;
-
 //functions
 void Input(void);
 void Reset(int);
