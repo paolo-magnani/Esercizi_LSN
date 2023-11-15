@@ -21,18 +21,18 @@ int main(int argc, char** argv){
 	vector<double> E(M, 0.), mean(N, 0.), err(N, 0.);
 	
 	//Simulated Annealing
-	for(double beta=1; beta<=1000; beta+=3){ //slowly freezing
+	for(double beta=1; beta<=1000; beta+=3){ //raffreddo lentamente attraverso simulated annealing
 		
-		unsigned int Tstep=1000/sqrt(beta);
+		unsigned int Tstep=1000/sqrt(beta); // mentre si raffredda, diminuisce il numero di mosse possibili
 	
 		//MU, SIGMA
-		for(unsigned int i=0; i<Tstep; i++){
+		for(unsigned int i=0; i<Tstep; i++){ // valuto il valore di mu e sigma
 			
 			cout << " beta = " << beta << "; Avanzamento:" << (double(i+1)/Tstep)*100 << "%" << endl;
 
 			//HAMILTONIAN VALUE
-			double H_old = Eval_H(M, step, mu, sigma, rand);
-			weight_old = Boltz(H_old, beta);
+			double H_old = Eval_H(M, step, mu, sigma, rand); // valuto <H> per mu e sigma dati
+			weight_old = Boltz(H_old, beta); // valuto il peso di Boltzmann
 			
 			double mu_old = mu;
 			double sigma_old = sigma;
@@ -40,7 +40,7 @@ int main(int argc, char** argv){
 			mu = fabs(mu + (1/beta)*rand.Rannyu(-1,1));
 			sigma = fabs(sigma + (1/beta)*rand.Rannyu(-1,1));
 			
-			double H_new = Eval_H(M, step, mu, sigma, rand);;
+			double H_new = Eval_H(M, step, mu, sigma, rand); // propongo una mossa e valuto la nuova <H>
 			
 			weight_new = Boltz(H_new, beta);
 			

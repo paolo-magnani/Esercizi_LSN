@@ -1,6 +1,6 @@
 #include "../libremia.h"
 
-bool comp(vector<double> pippo, vector<double> pluto){
+bool comp(const vector<double>& pippo, const vector<double> & pluto){
 		
 			if( pippo[pippo.size()-1]<pluto[pluto.size()-1]) return true;
 			else return false;

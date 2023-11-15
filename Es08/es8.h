@@ -36,7 +36,7 @@ double Eval_H(const unsigned int& B, const double& step, const double& mu, const
 	double E=0;
 	double xi=0., psi_old, psi_new, ratio;
 	
-	for(unsigned int i=0; i<B; i++){
+	for(unsigned int i=0; i<B; i++){ // Algoritmo di Metropolis
 			
 			psi_old = pow(psi(xi,mu,sigma),2.);
 			
@@ -66,7 +66,7 @@ void Stima_Finale(const unsigned int& B, double& step, const double& mu, const d
 	double xi=0., psi_old, psi_new, ratio;
 	double acc = 0, acc_old;
 
-	do{
+	do{ // trova il corretto valore dello step per avere un'accettnza di ~0.5 
 		acc_old = acc;
 		acc = 0, xi=0;	
 		for(unsigned int i=0; i<100; i++){
@@ -93,8 +93,8 @@ void Stima_Finale(const unsigned int& B, double& step, const double& mu, const d
 		cout << "step: " << step << endl;
 	}while(acc<0.4 or acc>0.6);
 	
-	acc = 0;
-	for(unsigned int i=0; i<B; i++){
+	acc = 0; // una volta trovato il valore dell'accettanza,
+	for(unsigned int i=0; i<B; i++){ //campiona il valor medio di H con l'algoritmo di Metropolis 
 			
 			psi_old = pow(psi(xi,mu,sigma),2.);
 			
