@@ -1,4 +1,4 @@
-#include "genalg.h"
+#include "es10.h"
 
 int main(){
 
@@ -9,28 +9,10 @@ int main(){
     MPI_Status stat1, stat2;
     MPI_Request req;
     
-    ifstream input;
-    
-    input.open("US_capitals.dat");
-    cout<<"Carico le città dal file ..."<<endl;
-    
-    american_city cities;
-    
-    int n=0;
-    while(!input.eof()){
-        string state, name;
-        double x,y;
-        input>>x>>y;
-        cities.x.push_back(x);
-        cities.y.push_back(y);
-        n++;
-        //cout << endl << n << endl;
-    }
-
-    cout << endl << "Operazione completata. " << endl;
-
-    Pop pop(200, cities);
+    Pop_square pop(1000, "US_capitals.dat");
     pop.print_city();
+    pop.evolveL1(1000000);
+    pop.getresults();
 
-    input.close();
+    return 0;
 }

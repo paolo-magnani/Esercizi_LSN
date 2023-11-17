@@ -20,7 +20,7 @@ class Pop_circle {
 		vector<double> best, best_mean, best_chromo; // migliore distanza ad ogni generazione, migliore media su metà del genoma, miglior percorso
 		unsigned int generations; //numero di generazioni
 		double p_cross=0.5; // probabilità di crossing
-		double p_mut=0.3; // probabilità di mutazione
+		double p_mut=0.1; // probabilità di mutazione
 		Random rand;
 		bool dist;
 		
@@ -155,15 +155,16 @@ class Pop_circle {
             print_pop();
             for(unsigned int i = 0; i<n_rep; i++){
                 crossover();
-				gensort();
 				mutations();
                 gensort();
 
-				best.push_back(genome[0][genome[0].size()-1]);
+				best.push_back(genome[0].back());
 
 				double media=0;
 				for(unsigned int j=0; j<genome.size()/2; j++) media += genome[j].back();
 				best_mean.push_back(2.*media/double(genome.size()));
+
+				if((i+1)%int(n_rep/20)==0) cout << endl << "Progresso: " << (i+1)*100/n_rep << "%   Distanza migliore: " << genome[0].back();
             }
 			cout << endl << endl;
 			best_chromo = genome[0];
@@ -172,63 +173,61 @@ class Pop_circle {
 
         void mutations(){ //contiene le mutazioni che subisce il genoma
 			
-			int chr = selection();
+			for(unsigned int chr=0; chr<genome.size();chr++){
 			
-			if(rand.Rannyu()<p_mut){//scambio due città 
+				if(rand.Rannyu()<p_mut){//scambio due città 
+					
+					unsigned int idx, idx2;
+					idx = rand.Rannyu(1., genome[chr].size()-1);
+					
+					do{ 
+						idx2 = rand.Rannyu(1., genome[chr].size()-1); 
+					}while(idx==idx2);
+					
+					swap(genome[chr][idx], genome[chr][idx2]);
+					genome[chr].back() = distance(genome[chr]);
+					bool sentinel = check(genome[chr]);
+					if(sentinel) cout << " Failure in mutation 1 " << endl << endl;
+				}	
 				
-                unsigned int idx, idx2;
-				idx = rand.Rannyu(1., genome[chr].size()-1);
-				
-                do{ 
-                    idx2 = rand.Rannyu(1., genome[chr].size()-1); 
-                }while(idx==idx2);
-				
-                swap(genome[chr][idx], genome[chr][idx2]);
-				genome[chr].back() = distance(genome[chr]);
-				bool sentinel = check(genome[chr]);
-				if(sentinel) cout << " Failure in mutation 1 " << endl << endl;
-			}	
-			
-			chr = selection();
 
-			if(rand.Rannyu()<p_mut){//sposto un blocco di n città di m posizioni 
-				unsigned int idx = rand.Rannyu(1., genome[chr].size()-2);
-				//cout << endl << "idx = " << idx << endl; 
-				unsigned int m = rand.Rannyu(1., genome[chr].size()-1-idx); 
-				//cout << endl << "m = " << m << endl; 
-				unsigned int n = rand.Rannyu(1.,genome[chr].size()-1-idx-m);
-				//cout << endl << "n = " << n << endl;
-				vector<double> appo;
-				for(unsigned int i=0; i<n; i++) appo.push_back(genome[chr][idx+i]);
-				for(unsigned int i=0; i<m; i++)	genome[chr][idx+i] = genome[chr][idx+n+i];
-				for(unsigned int i=0; i<n; i++) genome[chr][idx+m+i] = appo[i];
-				genome[chr].back() = distance(genome[chr]);
-                bool sentinel = check(genome[chr]);
-				if(sentinel) cout << " Failure in mutation 2 " << endl << endl;
-			}
+				if(rand.Rannyu()<p_mut){//sposto un blocco di n città di m posizioni 
+					unsigned int idx = rand.Rannyu(1., genome[chr].size()-2);
+					//cout << endl << "idx = " << idx << endl; 
+					unsigned int m = rand.Rannyu(1., genome[chr].size()-1-idx); 
+					//cout << endl << "m = " << m << endl; 
+					unsigned int n = rand.Rannyu(1.,genome[chr].size()-1-idx-m);
+					//cout << endl << "n = " << n << endl;
+					vector<double> appo;
+					for(unsigned int i=0; i<n; i++) appo.push_back(genome[chr][idx+i]);
+					for(unsigned int i=0; i<m; i++)	genome[chr][idx+i] = genome[chr][idx+n+i];
+					for(unsigned int i=0; i<n; i++) genome[chr][idx+m+i] = appo[i];
+					genome[chr].back() = distance(genome[chr]);
+					bool sentinel = check(genome[chr]);
+					if(sentinel) cout << " Failure in mutation 2 " << endl << endl;
+				}
+				
+				if(rand.Rannyu()<p_mut){//inverto l'ordine di n città
+					unsigned int idx = rand.Rannyu(1., genome[chr].size()-2);
+					unsigned int n = rand.Rannyu(1., genome[chr].size()-1-idx);
+					vector<double> appo;
+					for(unsigned int i=0; i<n; i++) appo.push_back(genome[chr][idx+i]);	
+					for(unsigned int i=0; i<n; i++) genome[chr][idx+i] = appo[n-1-i];
+					genome[chr].back() = distance(genome[chr]);
+					bool sentinel = check(genome[chr]);
+					if(sentinel) cout << " Failure in mutation 3 " << endl << endl;
+				}
+				
+				
+				if(rand.Rannyu()<p_mut){//permuto l'ordine di n città
+					int idx = rand.Rannyu(1., genome[chr].size()-2);
+					int n = rand.Rannyu(1., genome[chr].size()-1-idx);
+					random_shuffle(&genome[chr][idx], &genome[chr][idx+n]);
+					genome[chr].back() = distance(genome[chr]);
+					bool sentinel = check(genome[chr]);
+					if(sentinel) cout << " Failure in mutation 4 " << endl << endl;
+				}
 
-			chr = selection();
-			
-			if(rand.Rannyu()<p_mut){//inverto l'ordine di n città
-				unsigned int idx = rand.Rannyu(1., genome[chr].size()-2);
-				unsigned int n = rand.Rannyu(1., genome[chr].size()-1-idx);
-				vector<double> appo;
-				for(unsigned int i=0; i<n; i++) appo.push_back(genome[chr][idx+i]);	
-				for(unsigned int i=0; i<n; i++) genome[chr][idx+i] = appo[n-1-i];
-				genome[chr].back() = distance(genome[chr]);
-                bool sentinel = check(genome[chr]);
-				if(sentinel) cout << " Failure in mutation 3 " << endl << endl;
-			}
-            
-			chr = selection();
-			
-			if(rand.Rannyu()<p_mut){//permuto l'ordine di n città
-				int idx = rand.Rannyu(1., genome[chr].size()-2);
-				int n = rand.Rannyu(1., genome[chr].size()-1-idx);
-				random_shuffle(&genome[chr][idx], &genome[chr][idx+n]);
-				genome[chr].back() = distance(genome[chr]);
-                bool sentinel = check(genome[chr]);
-				if(sentinel) cout << " Failure in mutation 4 " << endl << endl;
 			}
 
 		}
@@ -328,7 +327,7 @@ class Pop_square {
 		vector<double> best, best_mean, best_chromo;
 		unsigned int generations; //numero di generazioni
 		double p_cross=0.5; // probabilità di crossing
-		double p_mut=0.2; // probabilità di mutazione
+		double p_mut=0.1; // probabilità di mutazione
 		Random rand;
 		bool dist;
 		
@@ -497,11 +496,13 @@ class Pop_square {
 				mutations();
                 gensort();
 
-				best.push_back(genome[0][genome[0].size()-1]);
+				best.push_back(genome[0].back());
 
 				double media=0;
-				for(unsigned int j=0; j<genome.size()/2; j++) media += genome[j][genome[j].size()-1];
+				for(unsigned int j=0; j<genome.size()/2; j++) media += genome[j].back();
 				best_mean.push_back(2.*media/double(genome.size()));
+
+				if((i+1)%int(n_rep/20)==0) cout << endl << "Progresso: " << (i+1)*100/n_rep << "%   Distanza migliore: " << genome[0].back();
             }
 			cout << endl << endl;
 			best_chromo = genome[0];
@@ -510,63 +511,60 @@ class Pop_square {
 
         void mutations(){ //contiene le mutazioni che subisce il genoma
 			
-			int chr = selection();
+			for(unsigned int chr=0; chr<genome.size();chr++){
 			
-			if(rand.Rannyu()<p_mut){//scambio due città 
+				if(rand.Rannyu()<p_mut){//scambio due città 
+					
+					unsigned int idx, idx2;
+					idx = rand.Rannyu(1., genome[chr].size()-1);
+					
+					do{ 
+						idx2 = rand.Rannyu(1., genome[chr].size()-1); 
+					}while(idx==idx2);
+					
+					swap(genome[chr][idx], genome[chr][idx2]);
+					genome[chr].back() = distance(genome[chr]);
+					bool sentinel = check(genome[chr]);
+					if(sentinel) cout << " Failure in mutation 1 " << endl << endl;
+				}	
+
+
+				if(rand.Rannyu()<p_mut){//sposto un blocco di n città di m posizioni 
+					unsigned int idx = rand.Rannyu(1., genome[chr].size()-2);
+					unsigned int m = rand.Rannyu(1., genome[chr].size()-1-idx); 
+					unsigned int n = rand.Rannyu(1.,genome[chr].size()-1-idx-m);
+
+					vector<double> appo;
+					for(unsigned int i=0; i<n; i++) appo.push_back(genome[chr][idx+i]);
+					for(unsigned int i=0; i<m; i++)	genome[chr][idx+i] = genome[chr][idx+n+i];
+					for(unsigned int i=0; i<n; i++) genome[chr][idx+m+i] = appo[i];
+					genome[chr].back() = distance(genome[chr]);
+					bool sentinel = check(genome[chr]);
+					if(sentinel) cout << " Failure in mutation 2 " << endl << endl;
+				}
+
 				
-                unsigned int idx, idx2;
-				idx = rand.Rannyu(1., genome[chr].size()-1);
+				if(rand.Rannyu()<p_mut){//inverto l'ordine di n città
+					unsigned int idx = rand.Rannyu(1., genome[chr].size()-2);
+					unsigned int n = rand.Rannyu(1., genome[chr].size()-1-idx);
+					vector<double> appo;
+					for(unsigned int i=0; i<n; i++) appo.push_back(genome[chr][idx+i]);	
+					for(unsigned int i=0; i<n; i++) genome[chr][idx+i] = appo[n-1-i];
+					genome[chr].back() = distance(genome[chr]);
+					bool sentinel = check(genome[chr]);
+					if(sentinel) cout << " Failure in mutation 3 " << endl << endl;
+				}
+
 				
-                do{ 
-                    idx2 = rand.Rannyu(1., genome[chr].size()-1); 
-                }while(idx==idx2);
-				
-                swap(genome[chr][idx], genome[chr][idx2]);
-				genome[chr].back() = distance(genome[chr]);
-				bool sentinel = check(genome[chr]);
-				if(sentinel) cout << " Failure in mutation 1 " << endl << endl;
-			}	
-			
-			chr = selection();
-
-			if(rand.Rannyu()<p_mut){//sposto un blocco di n città di m posizioni 
-				unsigned int idx = rand.Rannyu(1., genome[chr].size()-2);
-				unsigned int m = rand.Rannyu(1., genome[chr].size()-1-idx); 
-				unsigned int n = rand.Rannyu(1.,genome[chr].size()-1-idx-m);
-
-				vector<double> appo;
-				for(unsigned int i=0; i<n; i++) appo.push_back(genome[chr][idx+i]);
-				for(unsigned int i=0; i<m; i++)	genome[chr][idx+i] = genome[chr][idx+n+i];
-				for(unsigned int i=0; i<n; i++) genome[chr][idx+m+i] = appo[i];
-				genome[chr].back() = distance(genome[chr]);
-                bool sentinel = check(genome[chr]);
-				if(sentinel) cout << " Failure in mutation 2 " << endl << endl;
+				if(rand.Rannyu()<p_mut){//permuto l'ordine di n città
+					int idx = rand.Rannyu(1., genome[chr].size()-2);
+					int n = rand.Rannyu(1., genome[chr].size()-1-idx);
+					random_shuffle(&genome[chr][idx], &genome[chr][idx+n]);
+					genome[chr].back() = distance(genome[chr]);
+					bool sentinel = check(genome[chr]);
+					if(sentinel) cout << " Failure in mutation 4 " << endl << endl;
+				}
 			}
-
-			chr = selection();
-			
-			if(rand.Rannyu()<p_mut){//inverto l'ordine di n città
-				unsigned int idx = rand.Rannyu(1., genome[chr].size()-2);
-				unsigned int n = rand.Rannyu(1., genome[chr].size()-1-idx);
-				vector<double> appo;
-				for(unsigned int i=0; i<n; i++) appo.push_back(genome[chr][idx+i]);	
-				for(unsigned int i=0; i<n; i++) genome[chr][idx+i] = appo[n-1-i];
-				genome[chr].back() = distance(genome[chr]);
-                bool sentinel = check(genome[chr]);
-				if(sentinel) cout << " Failure in mutation 3 " << endl << endl;
-			}
-            
-			chr = selection();
-			
-			if(rand.Rannyu()<p_mut){//permuto l'ordine di n città
-				int idx = rand.Rannyu(1., genome[chr].size()-2);
-				int n = rand.Rannyu(1., genome[chr].size()-1-idx);
-				random_shuffle(&genome[chr][idx], &genome[chr][idx+n]);
-				genome[chr].back() = distance(genome[chr]);
-                bool sentinel = check(genome[chr]);
-				if(sentinel) cout << " Failure in mutation 4 " << endl << endl;
-			}
-
 		}
 		
 		void crossover(){ //strong crossover
