@@ -3,7 +3,7 @@ CFLAGS = -Wall -O3 --std=c++11
 
 es9.exe : es9.o random.o libremia.o
 	$(CC) libremia.o random.o es9.o -o es9.exe
-es9.o : es9.cpp es9pointers.h
+es9.o : es9.cpp es9.h
 	$(CC) -c es9.cpp -o es9.o $(CFLAGS)
 libremia.o : ../libremia.cpp ../libremia.h
 	$(CC) -c ../libremia.cpp -o libremia.o $(CFLAGS)
