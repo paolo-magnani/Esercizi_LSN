@@ -89,7 +89,7 @@ class Pop_circle {
 			unsigned int index1;
 			unsigned int index2;
 			
-			for(unsigned int i=0; i<(chromo.size()-2); i++){
+			for(unsigned int i=0; i<(chromo.size()-1); i++){
 				index1 = chromo[i];
 				index2 = chromo[i+1];
 				Lx = cos(city[index1])-cos(city[index2]);
@@ -114,7 +114,7 @@ class Pop_circle {
 			unsigned int index1;
 			unsigned int index2;
 			
-			for(unsigned int i=0; i<(chromo.size()-3); i++){
+			for(unsigned int i=0; i<(chromo.size()-2); i++){
 				index1 = chromo[i];
 				index2 = chromo[i+1];
 				Lx = cos(city[index1])-cos(city[index2]);

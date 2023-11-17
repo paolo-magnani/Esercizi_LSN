@@ -20,7 +20,7 @@ class Pop_circle {
 		vector<double> best, best_mean, best_chromo; // migliore distanza ad ogni generazione, migliore media su metà del genoma, miglior percorso
 		unsigned int generations; //numero di generazioni
 		double p_cross=0.5; // probabilità di crossing
-		double p_mut=0.2; // probabilità di mutazione
+		double p_mut=0.3; // probabilità di mutazione
 		Random rand;
 		bool dist;
 		
@@ -89,7 +89,7 @@ class Pop_circle {
 			unsigned int index1;
 			unsigned int index2;
 			
-			for(unsigned int i=0; i<(chromo.size()-2); i++){
+			for(unsigned int i=0; i<(chromo.size()-1); i++){
 				index1 = chromo[i];
 				index2 = chromo[i+1];
 				Lx = cos(city[index1])-cos(city[index2]);
@@ -111,7 +111,7 @@ class Pop_circle {
 			unsigned int index1;
 			unsigned int index2;
 			
-			for(unsigned int i=0; i<(chromo.size()-3); i++){
+			for(unsigned int i=0; i<(chromo.size()-2); i++){
 				index1 = chromo[i];
 				index2 = chromo[i+1];
 				Lx = cos(city[index1])-cos(city[index2]);
@@ -233,56 +233,71 @@ class Pop_circle {
 
 		}
 		
-		void crossover(){ //accoppio le i migliori per generare prole ancora più bella
-			
-			if(rand.Rannyu()<p_cross){
-			
+		void crossover(){ //strong crossover
+			vector<vector<double>> prole;
+
+			for(unsigned int k=0; k<genome.size()/2; k++){
+
 				int dad = selection();
 				int mum = selection();
+					
+				if(rand.Rannyu()<p_cross){
 				
-				int idx = rand.Rannyu(1., genome[mum].size()-1); //è un matriarcato
-				
-				vector<double> dad_tail, mum_tail;
-				
-				for(unsigned int i=1; i<genome[mum].size()-1; i++){
-					bool m_check = false, d_check = false;
-					for(unsigned int j=1; j<idx; j++){
-						if(genome[dad][i]==genome[mum][j]) m_check = true;
-						if(genome[mum][i]==genome[dad][j]) d_check = true;
+					unsigned int idx = rand.Rannyu(1., genome[mum].size()-1); //è un matriarcato
+					
+					vector<double> dad_tail, mum_tail, son, daughter;
+					
+					for(unsigned int i=1; i<genome[mum].size()-1; i++){
+						bool m_check = false, d_check = false;
+						for(unsigned int j=1; j<idx; j++){
+							if(genome[dad][i]==genome[mum][j]) m_check = true;
+							if(genome[mum][i]==genome[dad][j]) d_check = true;
+						}
+						if(m_check == false) mum_tail.push_back(genome[dad][i]);
+						if(d_check == false) dad_tail.push_back(genome[mum][i]);
 					}
-					if(m_check == false) mum_tail.push_back(genome[dad][i]);
-					if(d_check == false) dad_tail.push_back(genome[mum][i]);
-				}
-				
-				if(mum_tail.size()!=genome[mum].size()-idx-1) cout << " there's a mum problem";
-				if(dad_tail.size()!=genome[mum].size()-idx-1) cout << " there is a dad problem";
-				
-				
-				if(mum_tail.size()==dad_tail.size()){ //rimpiazzo gli ultimi della lista
-				
-					for(unsigned int i=1; i<idx; i++){
-						genome[genome.size()-1][i]=genome[mum][i];
-						genome[genome.size()-2][i]=genome[dad][i];
-					} 
-					for(unsigned int i=0; i<genome[mum].size()-idx-1; i++){
-						genome[genome.size()-1][idx+i] = mum_tail[i];
-						genome[genome.size()-2][idx+i] = dad_tail[i];
-					} 
-					bool sent1 = check(genome[genome.size()-1]);
-					bool sent2 = check(genome[genome.size()-2]);
+					
+					if(mum_tail.size()!=genome[mum].size()-idx-1) cout << " there is a mum problem";
+					if(dad_tail.size()!=genome[mum].size()-idx-1) cout << " there is a dad problem";
+					
+					
+					auto mumcut = genome[mum].begin() + idx;
+					auto dadcut = genome[dad].begin() + idx;
+
+					// prima parte
+					daughter.insert(daughter.begin(), genome[mum].begin(), mumcut);
+					son.insert(son.begin(), genome[dad].begin(), dadcut);
+
+					// seconda parte
+					daughter.insert(daughter.end(), mum_tail.begin(), mum_tail.end());
+					son.insert(son.end(), dad_tail.begin(), dad_tail.end());
+
+					daughter.push_back(eval1(daughter));
+					son.push_back(eval1(son));
+
+					bool sent1 = check(daughter);
+					bool sent2 = check(son);
 					if(sent1){
-						 cout << " Failure in crossover: mum will fix it " << endl << endl;
-						 genome[genome.size()-1]=genome[mum];
+						cout << " Failure in crossover: mum will fix it " << endl << endl;
+						daughter=genome[mum];
 					}
 					if(sent2){
-						 cout << " Failure in crossover: dad will fix it " << endl << endl;
-						 genome[genome.size()-2]=genome[dad];
-					}	 
-					genome[genome.size()-1][genome[genome.size()-1].size()-1] = distance(genome[genome.size()-1]); 
-					genome[genome.size()-2][genome[genome.size()-2].size()-1] = distance(genome[genome.size()-2]); 
+						cout << " Failure in crossover: dad will fix it " << endl << endl;
+						son=genome[dad];
+					}
+					prole.push_back(daughter);
+					prole.push_back(son);
+					
+				}
+				else{
+					
+					prole.push_back(genome[mum]);
+					prole.push_back(genome[dad]);
 				}
 			}
-		
+
+			genome = prole;
+			gensort();
 		}
 
 		void getresults(){ //stampo risultati su file
@@ -312,7 +327,6 @@ class Pop_square {
 		unsigned int generations; //numero di generazioni
 		double p_cross=0.5; // probabilità di crossing
 		double p_mut=0.2; // probabilità di mutazione
-		double p_mut2=0.3; //probabilità di mutazione di scambio
 		Random rand;
 		bool dist;
 		
@@ -344,6 +358,36 @@ class Pop_square {
                 check(genome[i]);
 			}
 
+		}
+
+		Pop_square(unsigned int n_chr, string filename){
+
+			iniz(rand);
+			
+			ifstream in;
+			in.open(filename);
+			double appo, appox, appoy;
+
+			//in >> appo >> appox >> appoy;
+			while(!in.eof()){
+				in >> appo >> appox >> appoy;
+				city.x.push_back(appox);
+				city.y.push_back(appoy);
+			}
+
+			vector<double> chromo(city.x.size());
+
+			for(unsigned int i=0; i<city.x.size(); i++){
+				chromo[i]=i;
+			}
+			
+			for(unsigned int i=0; i<n_chr; i++){	//preparo i cromosomi con sequenze casuali, aggiungo la misura e check per vedere se sono giusti
+				random_shuffle(chromo.begin()+1, chromo.end());
+				genome.push_back(chromo);
+                genome[i].push_back(eval1(chromo));
+                check(genome[i]);
+			}
+			in.close();
 		}
 		
 		//Destructor
@@ -383,7 +427,7 @@ class Pop_square {
 			unsigned int index1;
 			unsigned int index2;
 			
-			for(unsigned int i=0; i<(chromo.size()-2); i++){
+			for(unsigned int i=0; i<(chromo.size()-1); i++){
 				index1 = chromo[i];
 				index2 = chromo[i+1];
 				Lx = city.x[index1]-city.x[index2];
@@ -392,9 +436,6 @@ class Pop_square {
 			}
 			unsigned int appo = chromo.size()-1;
 			index2 = chromo[appo];
-			
-			//if(city[index2]>M_PI) L += fabs(2*M_PI-city[index2]);
-			//else L += fabs(city[index2]);
 			
 			Lx=city.x[0]-city.x[index2];
 			Ly=city.y[0]-city.y[index2];
@@ -408,7 +449,7 @@ class Pop_square {
 			unsigned int index1;
 			unsigned int index2;
 			
-			for(unsigned int i=0; i<(chromo.size()-3); i++){
+			for(unsigned int i=0; i<(chromo.size()-2); i++){
 				index1 = chromo[i];
 				index2 = chromo[i+1];
 				Lx = city.x[index1]-city.x[index2];
@@ -417,9 +458,6 @@ class Pop_square {
 			}
 			unsigned int appo = chromo.size()-2;
 			index2 = chromo[appo];
-			
-			//if(city[index2]>M_PI) L += fabs(2*M_PI-city[index2]);
-			//else L += fabs(city[index2]);
 			
 			Lx=city.x[0]-city.x[index2];
 			Ly=city.y[0]-city.y[index2];
@@ -474,9 +512,9 @@ class Pop_square {
 			
 			int chr = selection();
 			
-			if(rand.Rannyu()<p_mut2){//scambio due città 
+			if(rand.Rannyu()<p_mut){//scambio due città 
 				
-                int idx, idx2;
+                unsigned int idx, idx2;
 				idx = rand.Rannyu(1., genome[chr].size()-1);
 				
                 do{ 
@@ -484,7 +522,7 @@ class Pop_square {
                 }while(idx==idx2);
 				
                 swap(genome[chr][idx], genome[chr][idx2]);
-				genome[chr][genome[chr].size()-1] = distance(genome[chr]);
+				genome[chr].back() = distance(genome[chr]);
 				bool sentinel = check(genome[chr]);
 				if(sentinel) cout << " Failure in mutation 1 " << endl << endl;
 			}	
@@ -492,17 +530,15 @@ class Pop_square {
 			chr = selection();
 
 			if(rand.Rannyu()<p_mut){//sposto un blocco di n città di m posizioni 
-				int idx = rand.Rannyu(1., genome[chr].size()-2);
-				//cout << endl << "idx = " << idx << endl; 
-				int m = rand.Rannyu(1., genome[chr].size()-1-idx); 
-				//cout << endl << "m = " << m << endl; 
-				int n = rand.Rannyu(1.,genome[chr].size()-1-idx-m);
-				//cout << endl << "n = " << n << endl;
+				unsigned int idx = rand.Rannyu(1., genome[chr].size()-2);
+				unsigned int m = rand.Rannyu(1., genome[chr].size()-1-idx); 
+				unsigned int n = rand.Rannyu(1.,genome[chr].size()-1-idx-m);
+
 				vector<double> appo;
 				for(unsigned int i=0; i<n; i++) appo.push_back(genome[chr][idx+i]);
 				for(unsigned int i=0; i<m; i++)	genome[chr][idx+i] = genome[chr][idx+n+i];
 				for(unsigned int i=0; i<n; i++) genome[chr][idx+m+i] = appo[i];
-				genome[chr][genome[chr].size()-1] = distance(genome[chr]);
+				genome[chr].back() = distance(genome[chr]);
                 bool sentinel = check(genome[chr]);
 				if(sentinel) cout << " Failure in mutation 2 " << endl << endl;
 			}
@@ -510,12 +546,12 @@ class Pop_square {
 			chr = selection();
 			
 			if(rand.Rannyu()<p_mut){//inverto l'ordine di n città
-				int idx = rand.Rannyu(1., genome[chr].size()-2);
-				int n = rand.Rannyu(1., genome[chr].size()-1-idx);
+				unsigned int idx = rand.Rannyu(1., genome[chr].size()-2);
+				unsigned int n = rand.Rannyu(1., genome[chr].size()-1-idx);
 				vector<double> appo;
 				for(unsigned int i=0; i<n; i++) appo.push_back(genome[chr][idx+i]);	
 				for(unsigned int i=0; i<n; i++) genome[chr][idx+i] = appo[n-1-i];
-				genome[chr][genome[chr].size()-1] = distance(genome[chr]);
+				genome[chr].back() = distance(genome[chr]);
                 bool sentinel = check(genome[chr]);
 				if(sentinel) cout << " Failure in mutation 3 " << endl << endl;
 			}
@@ -526,63 +562,78 @@ class Pop_square {
 				int idx = rand.Rannyu(1., genome[chr].size()-2);
 				int n = rand.Rannyu(1., genome[chr].size()-1-idx);
 				random_shuffle(&genome[chr][idx], &genome[chr][idx+n]);
-				genome[chr][genome[chr].size()-1] = distance(genome[chr]);
+				genome[chr].back() = distance(genome[chr]);
                 bool sentinel = check(genome[chr]);
 				if(sentinel) cout << " Failure in mutation 4 " << endl << endl;
 			}
 
 		}
 		
-		void crossover(){ //accoppio le i migliori per generare prole ancora più bella
-			
-			if(rand.Rannyu()<p_cross){
-			
+		void crossover(){ //strong crossover
+			vector<vector<double>> prole;
+
+			for(unsigned int k=0; k<genome.size()/2; k++){
+
 				int dad = selection();
 				int mum = selection();
+					
+				if(rand.Rannyu()<p_cross){
 				
-				int idx = rand.Rannyu(1., genome[mum].size()-1); //è un matriarcato
-				
-				vector<double> dad_tail, mum_tail;
-				
-				for(unsigned int i=1; i<genome[mum].size()-1; i++){
-					bool m_check = false, d_check = false;
-					for(unsigned int j=1; j<idx; j++){
-						if(genome[dad][i]==genome[mum][j]) m_check = true;
-						if(genome[mum][i]==genome[dad][j]) d_check = true;
+					unsigned int idx = rand.Rannyu(1., genome[mum].size()-1); //è un matriarcato
+					
+					vector<double> dad_tail, mum_tail, son, daughter;
+					
+					for(unsigned int i=1; i<genome[mum].size()-1; i++){
+						bool m_check = false, d_check = false;
+						for(unsigned int j=1; j<idx; j++){
+							if(genome[dad][i]==genome[mum][j]) m_check = true;
+							if(genome[mum][i]==genome[dad][j]) d_check = true;
+						}
+						if(m_check == false) mum_tail.push_back(genome[dad][i]);
+						if(d_check == false) dad_tail.push_back(genome[mum][i]);
 					}
-					if(m_check == false) mum_tail.push_back(genome[dad][i]);
-					if(d_check == false) dad_tail.push_back(genome[mum][i]);
-				}
-				
-				if(mum_tail.size()!=genome[mum].size()-idx-1) cout << " UNO PROBLEMA!";
-				if(dad_tail.size()!=genome[mum].size()-idx-1) cout << " DUO PROBLEMA!";
-				
-				
-				if(mum_tail.size()==dad_tail.size()){ //rimpiazzo gli ultimi della lista
-				
-					for(unsigned int i=1; i<idx; i++){
-						genome[genome.size()-1][i]=genome[mum][i];
-						genome[genome.size()-2][i]=genome[dad][i];
-					} 
-					for(unsigned int i=0; i<genome[mum].size()-idx-1; i++){
-						genome[genome.size()-1][idx+i] = mum_tail[i];
-						genome[genome.size()-2][idx+i] = dad_tail[i];
-					} 
-					bool sent1 = check(genome[genome.size()-1]);
-					bool sent2 = check(genome[genome.size()-2]);
+					
+					if(mum_tail.size()!=genome[mum].size()-idx-1) cout << " there is a mum problem";
+					if(dad_tail.size()!=genome[mum].size()-idx-1) cout << " there is a dad problem";
+					
+					
+					auto mumcut = genome[mum].begin() + idx;
+					auto dadcut = genome[dad].begin() + idx;
+
+					// prima parte
+					daughter.insert(daughter.begin(), genome[mum].begin(), mumcut);
+					son.insert(son.begin(), genome[dad].begin(), dadcut);
+
+					// seconda parte
+					daughter.insert(daughter.end(), mum_tail.begin(), mum_tail.end());
+					son.insert(son.end(), dad_tail.begin(), dad_tail.end());
+
+					daughter.push_back(eval1(daughter));
+					son.push_back(eval1(son));
+
+					bool sent1 = check(daughter);
+					bool sent2 = check(son);
 					if(sent1){
-						 cout << " Failure in crossover: mum will fix it " << endl << endl;
-						 genome[genome.size()-1]=genome[mum];
+						cout << " Failure in crossover: mum will fix it " << endl << endl;
+						daughter=genome[mum];
 					}
 					if(sent2){
-						 cout << " Failure in crossover: dad will fix it " << endl << endl;
-						 genome[genome.size()-2]=genome[dad];
-					}	 
-					genome[genome.size()-1][genome[genome.size()-1].size()-1] = distance(genome[genome.size()-1]); 
-					genome[genome.size()-2][genome[genome.size()-2].size()-1] = distance(genome[genome.size()-2]); 
+						cout << " Failure in crossover: dad will fix it " << endl << endl;
+						son=genome[dad];
+					}
+					prole.push_back(daughter);
+					prole.push_back(son);
+					
+				}
+				else{
+					
+					prole.push_back(genome[mum]);
+					prole.push_back(genome[dad]);
 				}
 			}
-		
+
+			genome = prole;
+			gensort();
 		}
 
 		void getresults(){ //stampo risultati su file
