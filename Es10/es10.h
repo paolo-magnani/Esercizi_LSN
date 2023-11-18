@@ -55,9 +55,9 @@ class Pop_square {
 
 		}
 
-		Pop_square(unsigned int n_chr, string filename){ // costruttore nel caso le città siano su un file
+		Pop_square(unsigned int n_chr, string filename, unsigned int n_row){ // costruttore nel caso le città siano su un file
 
-			iniz(rand);
+			iniz(rand, n_row);
 			
 			ifstream in;
 			in.open(filename);
@@ -186,7 +186,7 @@ class Pop_square {
 			
 			generations = n_rep;
 			gensort();
-            print_pop();
+            //print_pop();
             for(unsigned int i = 0; i<n_rep; i++){
                 crossover();
 				mutations();
@@ -203,7 +203,7 @@ class Pop_square {
             }
 			cout << endl << endl;
 			best_chromo = genome[0];
-            print_pop();		
+            //print_pop();		
 		}
 
         void mutations(){ //contiene le mutazioni che subisce il genoma
@@ -331,10 +331,10 @@ class Pop_square {
 			gensort();
 		}
 
-		void getresults(){ //stampo risultati su file
+		void getresults(string file_distance, string file_path){ //stampo risultati su file
 			ofstream outbest, outbest_chromo;
-			outbest.open("risultati/best_distance_square.dat");
-			outbest_chromo.open("risultati/best_path_square.dat");
+			outbest.open(file_distance);
+			outbest_chromo.open(file_path);
 
 			for(unsigned int i = 0; i < generations; i++) outbest << i+1 << "," << best[i] << "," << best_mean[i] << endl;
 			for(unsigned int i = 0; i < best_chromo.size()-1; i++){
