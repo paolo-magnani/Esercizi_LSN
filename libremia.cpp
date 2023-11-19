@@ -37,7 +37,7 @@ void iniz(Random &rnd, const unsigned int nrows){ //inserire un numero tra 1 e 3
    int p1, p2;
    ifstream inprimes("../random/Primes");
    if (inprimes.is_open()){
-      for(unsigned int i = 0; i<nrows; i++) inprimes >> p1 >> p2;
+      for(unsigned int i = 0; i<=nrows; i++) inprimes >> p1 >> p2;
    } else cerr << "PROBLEM: Unable to open Primes" << endl;
    inprimes.close();
 

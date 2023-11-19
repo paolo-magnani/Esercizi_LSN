@@ -346,4 +346,15 @@ class Pop_square {
 			outbest_chromo.close();
 		}		
 		
+		void getchromo(double * &v, unsigned int pos){ // copia il cromosoma alla posizione pos in un array inizializzato dinamicamente
+			v = new double[genome[pos].size()];
+			for(unsigned int i=0; i<genome[pos].size(); i++) v[i] = genome[pos][i];
+		}
+
+		void replacechromo(const double * &v, unsigned int pos){ // inserisce i valori di un array inizializzato dinamicamente nel genoma alla posizione pos
+			vector<double> newchr(genome[pos].size());
+			for(unsigned int i=0; i<genome[pos].size(); i++) newchr.push_back(v[i]);
+			if(check(newchr)) genome[pos] = newchr;
+			else cerr << endl << "Replacement went wrong... " << endl;
+		}
 };
