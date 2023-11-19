@@ -19,7 +19,7 @@ class Pop_square {
 		vector<vector<double>> genome; //il genoma è un vettore di cromosomi (ognuno contenente una sequenza di città)
 		city_in_square city; // sequenza contenente tutte le distanze delle città dalla prima
 		vector<double> best, best_mean, best_chromo;
-		unsigned int generations; //numero di generazioni
+		unsigned int generations=0; //numero di generazioni
 		double p_cross=0.5; // probabilità di crossing
 		double p_mut=0.1; // probabilità di mutazione
 		Random rand;
@@ -184,7 +184,7 @@ class Pop_square {
         
         void evolveL1(unsigned int n_rep){ //evolvo la popolazione e registro i migliori
 			
-			generations = n_rep;
+			generations += n_rep;
 			gensort();
             //print_pop();
             for(unsigned int i = 0; i<n_rep; i++){
@@ -198,10 +198,10 @@ class Pop_square {
 				for(unsigned int j=0; j<genome.size()/2; j++) media += genome[j].back();
 				best_mean.push_back(2.*media/double(genome.size()));
 				
-				if((i+1)%int(n_rep/20)==0) cout << endl << "Progresso: " << (i+1)*100/n_rep << "%   Distanza migliore: " << genome[0].back();
+				//if((i+1)%int(n_rep/20)==0) cout << endl << "Progresso: " << (i+1)*100/n_rep << "%   Distanza migliore: " << genome[0].back();
 
             }
-			cout << endl << endl;
+			//cout << endl << endl;
 			best_chromo = genome[0];
             //print_pop();		
 		}
@@ -345,16 +345,13 @@ class Pop_square {
 			outbest.close();
 			outbest_chromo.close();
 		}		
-		
-		void getchromo(double * &v, unsigned int pos){ // copia il cromosoma alla posizione pos in un array inizializzato dinamicamente
-			v = new double[genome[pos].size()];
-			for(unsigned int i=0; i<genome[pos].size(); i++) v[i] = genome[pos][i];
+
+		vector<double> getchromo(unsigned int pos){ // safe getchromo
+			return genome[pos];
 		}
 
-		void replacechromo(const double * &v, unsigned int pos){ // inserisce i valori di un array inizializzato dinamicamente nel genoma alla posizione pos
-			vector<double> newchr(genome[pos].size());
-			for(unsigned int i=0; i<genome[pos].size(); i++) newchr.push_back(v[i]);
-			if(check(newchr)) genome[pos] = newchr;
+		void replacechromo(vector<double> v, unsigned int pos){ // safe replacechromo
+			if(check(v) == false) genome[pos] = v;
 			else cerr << endl << "Replacement went wrong... " << endl;
 		}
 };
