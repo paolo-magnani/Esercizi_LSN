@@ -42,9 +42,9 @@ int main(){
 
 		//stima diretta 
 		P[i]=0;
-		C[i] = exp(-r*T)*(S_0*exp((r-(0.5*pow(sigma,2)))*T+(sigma*rand.Gauss(0, sqrt(T))))-K); //implemento l'algoritmo visto a lezione
+		C[i] = exp(-r*T)*(S_0*exp((r-(0.5*pow(sigma,2)))*T+(sigma*rand.Gauss(0, sqrt(T))))-K); //implemento l'algoritmo visto a lezione: valuto il prezzo e lo sottraggo al prezzo iniziale
 			
-		if(C[i]<0){
+		if(C[i]<0){ // se il prezzo al tempo T è inferiore al prezzo iniziale, scambia put con call
 		
 			P[i]=-C[i];
 			C[i]=0;
@@ -64,7 +64,7 @@ int main(){
 
 	}
 		
-	mediablocchi(M, N, C, call, err_call);
+	mediablocchi(M, N, C, call, err_call); // calcolo le medie
 	mediablocchi(M, N, P, put, err_put);
 	mediablocchi(M, N, C2, call2, err_call2);
 	mediablocchi(M, N, P2, put2, err_put2);

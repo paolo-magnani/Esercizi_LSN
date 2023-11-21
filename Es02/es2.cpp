@@ -1,4 +1,4 @@
-#include "es2.h"
+#include "es2.h" // le funzioni utilizzate nell'esercizio 2 sono definite nel file 'es2.h'
 #define M 10000000 // numero di punti su cui calcolare l'integrale
 #define N 100 // numero blocchi e passi del Random Walk
 #define ITER 100000 //ripetizioni del Random Walk
