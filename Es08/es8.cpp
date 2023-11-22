@@ -18,12 +18,12 @@ int main(int argc, char** argv){
 	double ratio, weight_old, weight_new;
 	double mu=rand.Rannyu(), sigma=rand.Rannyu();
 	
-	vector<double> E(M, 0.), mean(N, 0.), err(N, 0.);
+	vector<double> E(M, 0.), pos, mean(N, 0.), err(N, 0.);
 	
 	//Simulated Annealing
 	for(double beta=1; beta<=1000; beta+=3){ //raffreddo lentamente attraverso simulated annealing
 		
-		unsigned int Tstep=1000/sqrt(beta); // mentre si raffredda, diminuisce il numero di mosse possibili
+		unsigned int Tstep=1000/log(beta+1);//sqrt(beta); // mentre si raffredda, diminuisce il numero di mosse possibili
 	
 		//MU, SIGMA
 		for(unsigned int i=0; i<Tstep; i++){ // valuto il valore di mu e sigma
@@ -62,11 +62,16 @@ int main(int argc, char** argv){
 		cout << "Sigma: " << sigma << endl;
 		cout << "Estimated < H > value: " << H << endl;
 	}
-	Stima_Finale(M, step, mu, sigma, E, rand);
+	Stima_Finale(M, step, mu, sigma, E, pos, rand);
 	mediablocchi(M, N, E, mean, err);
 
 	stampamedia("Energy.dat",M, mean,err);
 
+	ofstream outpsi("Psi.dat");
+
+	for(unsigned int i=0; i<pos.size(); i++) outpsi << i+1 << "," << pos[i] << endl;
+
+	outpsi.close();
 	out_beta.close();
 	out_par.close();
 	

@@ -61,19 +61,20 @@ double Eval_H(const unsigned int& B, const double& step, const double& mu, const
 } 
 
 
-void Stima_Finale(const unsigned int& B, double& step, const double& mu, const double& sigma, vector<double>& E, Random& rand){ // stima il valore di H nel ground state dopo aver trovato il valore di mu e sigma
+void Stima_Finale(const unsigned int& B, double& step, const double& mu, const double& sigma, vector<double>& E, vector<double>& pos, Random& rand){ // stima il valore di H nel ground state dopo aver trovato il valore di mu e sigma
 
 	double xi=0., psi_old, psi_new, ratio;
 	double acc = 0, acc_old;
 
-	do{ // trova il corretto valore dello step per avere un'accettnza di ~0.5 
+	cout << endl << "Searching for a suitable step... " << endl;
+	do{ // trova il corretto valore dello step per avere un'accettanza di ~0.5 
 		acc_old = acc;
 		acc = 0, xi=0;	
 		for(unsigned int i=0; i<100; i++){
 			
 			psi_old = pow(psi(xi,mu,sigma),2.);
 			
-			double x_old = xi;			
+			double x_old = xi;
 			xi = xi + step*rand.Rannyu(-1.,1.);
 			
 			psi_new = pow(psi(xi,mu,sigma),2.);
@@ -91,14 +92,16 @@ void Stima_Finale(const unsigned int& B, double& step, const double& mu, const d
 		else step += 0.1;
 		cout << "acceptance: " << acc << endl;
 		cout << "step: " << step << endl;
-	}while(acc<0.4 or acc>0.6);
+	}while(acc<0.45 or acc>0.55);
 	
-	acc = 0; // una volta trovato il valore dell'accettanza,
-	for(unsigned int i=0; i<B; i++){ //campiona il valor medio di H con l'algoritmo di Metropolis 
+	cout << endl << " Evaluating < H >... " << endl;
+	acc = 0; // una volta trovato il valore dello step,
+	for(unsigned int i=0; i<B; i++){ //campiona il valor medio di H con l'algoritmo di Metropolis e registra le posizioni esplorate in 'pos'
 			
 			psi_old = pow(psi(xi,mu,sigma),2.);
 			
 			double x_old = xi; 
+			pos.push_back(x_old);
 			
 			E[i]= Ham(xi, mu, sigma);
 			
