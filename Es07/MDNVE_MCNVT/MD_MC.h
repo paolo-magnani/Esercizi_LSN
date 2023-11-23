@@ -18,7 +18,7 @@ Random rnd;
 
 //parameters, observables
 const int m_props=1000;
-int n_props, iv, ik, it, ie, iw,   ip;
+int n_props, iv, ik, it, ie, iw, ip;
 double vtail, ptail, bin_size, nbins, sd;
 double walker[m_props];
 

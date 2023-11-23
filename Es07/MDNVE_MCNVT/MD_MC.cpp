@@ -66,7 +66,7 @@ void Input(void)
   ReadInput >> iNVET;
   ReadInput >> restart;
 
-  if(restart) Seed.open("seed.out");
+  if(restart) Seed.open("seed.out"); // the restart option between equilibration and simulation
   else Seed.open("seed.in");
   Seed >> seed[0] >> seed[1] >> seed[2] >> seed[3];
   rnd.SetRandom(seed,p1,p2);
@@ -118,7 +118,9 @@ void Input(void)
   {
     ReadConf.open("config.out");
     ReadVelocity.open("velocity.out");
+    cout << "Retrieving velocities from equilibration " << endl;
     for (int i=0; i<npart; ++i) ReadVelocity >> vx[i] >> vy[i] >> vz[i];
+    ReadVelocity.close();
   }
   else 
   {
@@ -401,61 +403,60 @@ void Averages(int iblk) //Print results for current block
     if(iNVET) cout << "Acceptance rate " << accepted/attempted << endl << endl;
     
     Epot.open("output_epot.dat",ios::app);
-    Ekin.open("output_ekin.dat",ios::app);
-    Temp.open("output_temp.dat",ios::app);
-    Etot.open("output_etot.dat",ios::app);
-    Pres.open("output_pres.dat",ios::app);
+    // Ekin.open("output_ekin.dat",ios::app);
+    // Temp.open("output_temp.dat",ios::app);
+    // Etot.open("output_etot.dat",ios::app);
+    // Pres.open("output_pres.dat",ios::app);
     
     stima_pot = blk_av[iv]/blk_norm/(double)npart + vtail; //Potential energy
     glob_av[iv] += stima_pot;
     glob_av2[iv] += stima_pot*stima_pot;
     err_pot=Error(glob_av[iv],glob_av2[iv],iblk);
     
-    stima_kin = blk_av[ik]/blk_norm/(double)npart; //Kinetic energy
-    glob_av[ik] += stima_kin;
-    glob_av2[ik] += stima_kin*stima_kin;
-    err_kin=Error(glob_av[ik],glob_av2[ik],iblk);
+    // stima_kin = blk_av[ik]/blk_norm/(double)npart; //Kinetic energy
+    // glob_av[ik] += stima_kin;
+    // glob_av2[ik] += stima_kin*stima_kin;
+    // err_kin=Error(glob_av[ik],glob_av2[ik],iblk);
 
-    stima_etot = blk_av[ie]/blk_norm/(double)npart + vtail; //Total energy
-    glob_av[ie] += stima_etot;
-    glob_av2[ie] += stima_etot*stima_etot;
-    err_etot=Error(glob_av[ie],glob_av2[ie],iblk);
+    // stima_etot = blk_av[ie]/blk_norm/(double)npart + vtail; //Total energy
+    // glob_av[ie] += stima_etot;
+    // glob_av2[ie] += stima_etot*stima_etot;
+    // err_etot=Error(glob_av[ie],glob_av2[ie],iblk);
 
-    stima_temp = blk_av[it]/blk_norm; //Temperature
-    glob_av[it] += stima_temp;
-    glob_av2[it] += stima_temp*stima_temp;
-    err_temp=Error(glob_av[it],glob_av2[it],iblk);
+    // stima_temp = blk_av[it]/blk_norm; //Temperature
+    // glob_av[it] += stima_temp;
+    // glob_av2[it] += stima_temp*stima_temp;
+    // err_temp=Error(glob_av[it],glob_av2[it],iblk);
     
-    stima_pres = blk_av[ip]/blk_norm + ptail; //PRESSURE //mio
-    glob_av[ip] += stima_pres;
-    glob_av2[ip] += stima_pres*stima_pres;
-    err_pres=Error(glob_av[ip],glob_av2[ip],iblk);
+    // stima_pres = blk_av[ip]/blk_norm + ptail; //PRESSURE //mio
+    // glob_av[ip] += stima_pres;
+    // glob_av2[ip] += stima_pres*stima_pres;
+    // err_pres=Error(glob_av[ip],glob_av2[ip],iblk);
 
 //Potential energy per particle
     Epot << setw(wd) << iblk <<  setw(wd) << stima_pot << setw(wd) << glob_av[iv]/(double)iblk << setw(wd) << err_pot << endl;
-//Kinetic energy
-    Ekin << setw(wd) << iblk <<  setw(wd) << stima_kin << setw(wd) << glob_av[ik]/(double)iblk << setw(wd) << err_kin << endl;
-//Total energy
-    Etot << setw(wd) << iblk <<  setw(wd) << stima_etot << setw(wd) << glob_av[ie]/(double)iblk << setw(wd) << err_etot << endl;
-//Temperature
-    Temp << setw(wd) << iblk <<  setw(wd) << stima_temp << setw(wd) << glob_av[it]/(double)iblk << setw(wd) << err_temp << endl;
-//PRESSURE //mio
-    Pres << setw(wd) << iblk <<  setw(wd) << stima_pres << setw(wd) << glob_av[ip]/(double)iblk << setw(wd) << err_pres << endl;
+// //Kinetic energy
+//     Ekin << setw(wd) << iblk <<  setw(wd) << stima_kin << setw(wd) << glob_av[ik]/(double)iblk << setw(wd) << err_kin << endl;
+// //Total energy
+//     Etot << setw(wd) << iblk <<  setw(wd) << stima_etot << setw(wd) << glob_av[ie]/(double)iblk << setw(wd) << err_etot << endl;
+// //Temperature
+//     Temp << setw(wd) << iblk <<  setw(wd) << stima_temp << setw(wd) << glob_av[it]/(double)iblk << setw(wd) << err_temp << endl;
+// //PRESSURE //mio
+//     Pres << setw(wd) << iblk <<  setw(wd) << stima_pres << setw(wd) << glob_av[ip]/(double)iblk << setw(wd) << err_pres << endl;
 
     cout << "----------------------------" << endl << endl;
 
     Epot.close();
-    Ekin.close();
-    Etot.close();
-    Temp.close();
-    Pres.close();
+    // Ekin.close();
+    // Etot.close();
+    // Temp.close();
+    // Pres.close();
     
-    cout << endl << ptail;
+    //cout << endl << ptail;
     //if(restart==0 and iblk==nblk) cout << endl << "The system has reached the temperature of " << glob_av[it]/(double)iblk << " a. u. " << endl;
     //cout << endl << "The system has the temperature of " << glob_av[it]/(double)iblk << " r.u. " << endl; //check
 	 cout << endl << "Potential energy per particle of the system is now " << glob_av[iv]/(double)iblk  << " r.u. " << endl;
 }
-
 
 
 void ConfFinal(void)
