@@ -57,7 +57,7 @@ void iniz(Random &rnd, const unsigned int nrows){ //inserire un numero tra 1 e 3
 
 }
 
-void mediablocchi( const unsigned int M, const unsigned int N, const vector<double>& r, vector<double>& sum_prog, vector<double>& err_prog){
+void mediablocchi( const unsigned int& M, const unsigned int& N, const vector<double>& r, vector<double>& sum_prog, vector<double>& err_prog){
 
 	vector<double> su2_prog(N,0);
 	double ave=0, av2=0;

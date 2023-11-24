@@ -110,7 +110,11 @@ void Input(void)
   ik = 2; //Kinetic energy
   ie = 3; //Total energy
   ip = 4; //PRESSURE //mio
-  	n_props = 5; //Number of observables
+  n_props = 5; //Number of observables
+
+  width_bin = (box/2.)/double(N_bins); // width of each bin for g(r) calculation
+  for(int i=0; i<N_bins; i++) delta_V[i] = 4.*pi*(pow(width_bin*double(i + 1),3.) - pow(width_bin*double(i),3))/3.; //volume for g(r) calculation
+  n_props= 5 + N_bins; // update # of observables
 
 //Read initial configuration
   cout << "Read initial configuration" << endl << endl;
@@ -324,6 +328,8 @@ void Measure() //Properties measurement
   double vij;
   	double wij; //mio
   double dx, dy, dz, dr;
+     double g[N_bins]; // mio
+  for(int i=0;i<N_bins;i++) g[i] = 0;
 
 //cycle over pairs of particles
   for (int i=0; i<npart-1; ++i)
@@ -337,6 +343,8 @@ void Measure() //Properties measurement
 
       dr = dx*dx + dy*dy + dz*dz;
       dr = sqrt(dr);
+
+      if(dr < (box/2.0)) g[int(dr/width_bin)] += 2.; // update g(r)
 
       if(dr < rcut)
       {
@@ -355,6 +363,9 @@ void Measure() //Properties measurement
   walker[it] = (2.0 / 3.0) * kin/(double)npart; // Temperature
   walker[ie] = 4.0 * v + kin;  // Total energy;
   walker[ip] = rho*walker[it] + (16./vol)*w/double(npart); //PRESSURE //mio
+
+  // move and normalize
+  for (int i=0; i<N_bins; ++i) walker[i+5] = g[i]/(rho*double(npart)*delta_V[i]);
 
   return;
 }
@@ -376,6 +387,8 @@ void Reset(int iblk) //Reset block averages
    {
      blk_av[i] = 0;
    }
+
+   for(int i=0; i<N_bins; i++) walker[i+5] = 0.;
    blk_norm = 0;
    attempted = 0;
    accepted = 0;
@@ -396,7 +409,7 @@ void Accumulate(void) //Update block averages
 void Averages(int iblk) //Print results for current block
 {
     
-   ofstream Epot, Ekin, Etot, Temp, Pres;
+   ofstream Epot, Ekin, Etot, Temp, Pres, gbloc, gfinal;
    const int wd=12;
     
     cout << "Block number " << iblk << endl;
@@ -406,7 +419,9 @@ void Averages(int iblk) //Print results for current block
     // Ekin.open("output_ekin.dat",ios::app);
     // Temp.open("output_temp.dat",ios::app);
     // Etot.open("output_etot.dat",ios::app);
-    // Pres.open("output_pres.dat",ios::app);
+    Pres.open("output_pres.dat",ios::app);
+    gbloc.open("output_g.dat",ios::app);
+    gfinal.open("output_gfinal.dat",ios::app);
     
     stima_pot = blk_av[iv]/blk_norm/(double)npart + vtail; //Potential energy
     glob_av[iv] += stima_pot;
@@ -428,10 +443,17 @@ void Averages(int iblk) //Print results for current block
     // glob_av2[it] += stima_temp*stima_temp;
     // err_temp=Error(glob_av[it],glob_av2[it],iblk);
     
-    // stima_pres = blk_av[ip]/blk_norm + ptail; //PRESSURE //mio
-    // glob_av[ip] += stima_pres;
-    // glob_av2[ip] += stima_pres*stima_pres;
-    // err_pres=Error(glob_av[ip],glob_av2[ip],iblk);
+    stima_pres = blk_av[ip]/blk_norm + ptail; //PRESSURE //mio
+    glob_av[ip] += stima_pres;
+    glob_av2[ip] += stima_pres*stima_pres;
+    err_pres=Error(glob_av[ip],glob_av2[ip],iblk);
+
+    for(int i=0; i <N_bins; i++) { // g(r)
+      stima_g[i] = blk_av[i+5]/blk_norm;
+      glob_av[i+5] += stima_g[i];
+      glob_av2[i+5] += stima_g[i]*stima_g[i];
+      err_g[i] = Error(glob_av[i+5],glob_av2[i+5],iblk);
+     }
 
 //Potential energy per particle
     Epot << setw(wd) << iblk <<  setw(wd) << stima_pot << setw(wd) << glob_av[iv]/(double)iblk << setw(wd) << err_pot << endl;
@@ -441,8 +463,14 @@ void Averages(int iblk) //Print results for current block
 //     Etot << setw(wd) << iblk <<  setw(wd) << stima_etot << setw(wd) << glob_av[ie]/(double)iblk << setw(wd) << err_etot << endl;
 // //Temperature
 //     Temp << setw(wd) << iblk <<  setw(wd) << stima_temp << setw(wd) << glob_av[it]/(double)iblk << setw(wd) << err_temp << endl;
-// //PRESSURE //mio
-//     Pres << setw(wd) << iblk <<  setw(wd) << stima_pres << setw(wd) << glob_av[ip]/(double)iblk << setw(wd) << err_pres << endl;
+
+//PRESSURE //mio
+    Pres << setw(wd) << iblk <<  setw(wd) << stima_pres << setw(wd) << glob_av[ip]/(double)iblk << setw(wd) << err_pres << endl;
+    for (int i=0; i<N_bins; i++) {
+      gbloc << setw(wd) << iblk <<  setw(wd) << i*width_bin <<  setw(wd) << glob_av[i+5]/(double)iblk <<  setw(wd) << err_g[i] << endl;
+      if(iblk == nblk) 
+        gfinal <<  setw(wd) << i*width_bin <<  setw(wd) << glob_av[i+5]/(double)iblk << setw(wd) << err_g[i] << endl;
+    }
 
     cout << "----------------------------" << endl << endl;
 
@@ -450,7 +478,9 @@ void Averages(int iblk) //Print results for current block
     // Ekin.close();
     // Etot.close();
     // Temp.close();
-    // Pres.close();
+    Pres.close();
+    gbloc.close();
+    gfinal.close();
     
     //cout << endl << ptail;
     //if(restart==0 and iblk==nblk) cout << endl << "The system has reached the temperature of " << glob_av[it]/(double)iblk << " a. u. " << endl;

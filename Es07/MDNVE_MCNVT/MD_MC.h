@@ -45,8 +45,11 @@ double delta;
 //pigreco
 const double pi=3.1415927;
 
-//equilibrazione
-bool equilibrazione;
+//g(r)
+int bin;
+const int N_bins=500;
+double delta_V[N_bins], err_g[N_bins], stima_g[N_bins];
+double width_bin;
 
 //functions
 void Input(void);
