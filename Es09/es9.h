@@ -301,8 +301,8 @@ class Pop_circle {
 
 		void getresults(){ //stampo risultati su file
 			ofstream outbest, outbest_chromo, out_evolution;
-			outbest.open("risultati/best_distance.dat");
-			outbest_chromo.open("risultati/best_path.dat");
+			outbest.open("best_distance.dat");
+			outbest_chromo.open("best_path.dat");
 			out_evolution.open("risultati/best_evolution.dat");
 
 			for(unsigned int i = 0; i < generations; i++) outbest << i+1 << "," << best[i] << "," << best_mean[i] << endl;
@@ -636,8 +636,8 @@ class Pop_square {
 
 		void getresults(){ //stampo risultati su file
 			ofstream outbest, outbest_chromo;
-			outbest.open("risultati/best_distance_square.dat");
-			outbest_chromo.open("risultati/best_path_square.dat");
+			outbest.open("best_distance_square.dat");
+			outbest_chromo.open("best_path_square.dat");
 
 			for(unsigned int i = 0; i < generations; i++) outbest << i+1 << "," << best[i] << "," << best_mean[i] << endl;
 			for(unsigned int i = 0; i < best_chromo.size()-1; i++){
