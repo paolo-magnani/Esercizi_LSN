@@ -415,13 +415,13 @@ void Averages(int iblk) //Print results for current block
     cout << "Block number " << iblk << endl;
     if(iNVET) cout << "Acceptance rate " << accepted/attempted << endl << endl;
     
-    Epot.open("output_epot.dat",ios::app);
+    // Epot.open("output_epot.dat",ios::app);
     // Ekin.open("output_ekin.dat",ios::app);
     // Temp.open("output_temp.dat",ios::app);
     // Etot.open("output_etot.dat",ios::app);
     Pres.open("output_pres.dat",ios::app);
-    gbloc.open("output_g.dat",ios::app);
-    gfinal.open("output_gfinal.dat",ios::app);
+    // gbloc.open("output_g.dat",ios::app);
+    // gfinal.open("output_gfinal.dat",ios::app);
     
     stima_pot = blk_av[iv]/blk_norm/(double)npart + vtail; //Potential energy
     glob_av[iv] += stima_pot;
@@ -443,7 +443,7 @@ void Averages(int iblk) //Print results for current block
     // glob_av2[it] += stima_temp*stima_temp;
     // err_temp=Error(glob_av[it],glob_av2[it],iblk);
     
-    stima_pres = blk_av[ip]/blk_norm + ptail; //PRESSURE //mio
+    stima_pres = (blk_av[ip]+ ptail)/blk_norm; //PRESSURE //mio
     glob_av[ip] += stima_pres;
     glob_av2[ip] += stima_pres*stima_pres;
     err_pres=Error(glob_av[ip],glob_av2[ip],iblk);
@@ -456,7 +456,7 @@ void Averages(int iblk) //Print results for current block
      }
 
 //Potential energy per particle
-    Epot << setw(wd) << iblk <<  setw(wd) << stima_pot << setw(wd) << glob_av[iv]/(double)iblk << setw(wd) << err_pot << endl;
+//    Epot << setw(wd) << iblk <<  setw(wd) << stima_pot << setw(wd) << glob_av[iv]/(double)iblk << setw(wd) << err_pot << endl;
 // //Kinetic energy
 //     Ekin << setw(wd) << iblk <<  setw(wd) << stima_kin << setw(wd) << glob_av[ik]/(double)iblk << setw(wd) << err_kin << endl;
 // //Total energy
@@ -466,21 +466,21 @@ void Averages(int iblk) //Print results for current block
 
 //PRESSURE //mio
     Pres << setw(wd) << iblk <<  setw(wd) << stima_pres << setw(wd) << glob_av[ip]/(double)iblk << setw(wd) << err_pres << endl;
-    for (int i=0; i<N_bins; i++) {
-      gbloc << setw(wd) << iblk <<  setw(wd) << i*width_bin <<  setw(wd) << glob_av[i+5]/(double)iblk <<  setw(wd) << err_g[i] << endl;
-      if(iblk == nblk) 
-        gfinal <<  setw(wd) << i*width_bin <<  setw(wd) << glob_av[i+5]/(double)iblk << setw(wd) << err_g[i] << endl;
-    }
+    // for (int i=0; i<N_bins; i++) {
+    //   gbloc << setw(wd) << iblk <<  setw(wd) << i*width_bin <<  setw(wd) << glob_av[i+5]/(double)iblk <<  setw(wd) << err_g[i] << endl;
+    //   if(iblk == nblk) 
+    //     gfinal <<  setw(wd) << i*width_bin <<  setw(wd) << glob_av[i+5]/(double)iblk << setw(wd) << err_g[i] << endl;
+    // }
 
     cout << "----------------------------" << endl << endl;
 
-    Epot.close();
+    // Epot.close();
     // Ekin.close();
     // Etot.close();
     // Temp.close();
     Pres.close();
-    gbloc.close();
-    gfinal.close();
+    // gbloc.close();
+    // gfinal.close();
     
     //cout << endl << ptail;
     //if(restart==0 and iblk==nblk) cout << endl << "The system has reached the temperature of " << glob_av[it]/(double)iblk << " a. u. " << endl;
@@ -505,7 +505,7 @@ void ConfFinal(void)
   WriteVelocity.close();
 
   rnd.SaveSeed();
-  if(restart==0) cout << "Equilibration completed. Check the temperature reached by the system before restarting the simulation. " << endl;
+  if(restart==0) cout << "Equilibration completed. Check the input file before restarting the simulation. " << endl;
 
 }
 
